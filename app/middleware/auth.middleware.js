@@ -34,7 +34,6 @@ exports.authAdmin = (req, res, next) => {
     // xác thực người dùng
 exports.authMember = (req, res, next) => {
 
-//    const token = req.headers['authorization'];
     const token = (req.get("Authorization")).split(" ")[1].trim();
     console.log(token);
 
