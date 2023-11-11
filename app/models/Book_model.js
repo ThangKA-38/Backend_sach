@@ -135,6 +135,20 @@ Book.upload = (newData, result) => {
         result(null, book);
     })
 }
+
+//lấy dữ liệu ảnh và file 
+Book.get_image_fileDB = (id, callback) => {
+    const db = `SELECT * FROM book_img_file WHERE book_id =${id}`
+    sql.query(db, (err, data) => {
+        if (err) {
+            callback(err, null)
+            console.log(err);
+        } else {
+            callback(data);
+        }
+    })
+}
+
 Book.getCategory = (result) => {
     const db = `
     SELECT *
