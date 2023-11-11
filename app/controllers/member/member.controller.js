@@ -37,6 +37,17 @@ exports.addNewInfor = (req, res) => {
         }
     });
 }
+Member.deleteUser = (id, callback) => {
+    const db = `DELETE FROM user_info WHERE account_id=${id}`;
+    sql.query(db, (err) => {
+        if (err) {
+            callback(err, null)
+            console.log(err);
+        } else {
+            callback("xóa dữ liệu có id = " + id + " thàn công")
+        }
+    })
+}
 
 exports.detailUser = (req, res) => {
     const token = (req.get("Authorization")).split(" ")[1].trim();
