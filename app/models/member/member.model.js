@@ -17,6 +17,21 @@ Member.addInfor = (newData, result) => {
         }
     });
 }
+
+// xóa dữ liệu theo account_id
+Member.deleteUser = (id, callback) => {
+    const db = `DELETE FROM user_info WHERE account_id=${id}`;
+    sql.query(db, (err) => {
+        if (err) {
+            callback(err, null)
+            console.log(err);
+        } else {
+            callback("xóa dữ liệu có id = " + id + " thàn công")
+        }
+    })
+}
+
+
 Member.getUserById = (id, callback) => {
     const db = 
     `SELECT U.user_id, U.fullName, U.address, U.phone_number, U.birth_date, U.gender, U.avatar, U.created_at
