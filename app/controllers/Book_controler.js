@@ -41,97 +41,72 @@ exports.All_supplier = (req, res) => {
 //Thêm sách mới
 exports.createNewBook = (req, res) => {
     const newData = {
-      book_title: req.body.bookTitle,
-      author: req.body.author,
-      publication_year: req.body.publicationYear,
-      price: req.body.price,
-      supplier_id: req.body.supplierId,
-    };
-  
-    // Kiểm tra xem người dùng có chọn danh mục hiện có hay không
-    if (req.body.newCategory && req.body.newSupplier) {
-      const newCategoryData = {
-          category_name: req.body.newCategory,
-      };
-      const newSupplierData = {
-          category_name: req.body.newCategory,
-      };
-      //thêm vao danh mục mới
-      addNewCateg(newCategoryData);
-      addNewSupplier(newSupplierData);
-      addNewBook(newData)
-  } else if (req.body.newCategory) {
-      const newCategoryData = {
-          category_name: req.body.newCategory,
-      };
-      addNewCateg(newCategoryData);
-  } else if (req.body.newSupplier) {
-      newData.category_id = req.body.category;
-      const newSupplierData = {
-          category_name: req.body.newSupplier,
-      };
-      addNewSupplier(newSupplierData);
-      addNewBook(newData);
-  }
-  else {
-      newData.category_id = req.body.category; // lấy id danh mục có sẵn
-      newData.supplier_id = req.body.supplier;
-      addNewBook(newData)
-  }
-  
-    // Hàm thêm sách mới vào category
-    function addNewBook(bookData) {
-      Book.addBook(bookData, (err, newBook) => {
-        if (err) {
-          res.status(401).json(err);
-        } else {
-          uploadFiles(newBook.id);
-        }
-      });
-    }
-    function addNewCateg(data) {
-      Book.addCategory(data, (err, category) => {
-          if (err) {
-              res.status(401).json(err);
-          } else {
-              newData.category_id = category.id; //thêm category_id  mới vào newData
-          }
-      })
-  };
+        book_title: req.body.bookTitle,
+        author: req.body.author,
+        publication_year: req.body.publicationYear,
+        price: req.body.price,
 
-  function addNewSupplier(data) {
-      Book.addCategory(data, (err, supplier) => {
-          if (err) {
-              res.status(401).json(err);
-          } else {
-              newData.supplier_id = supplier.id; //thêm category_id  mới vào newData
-          }
-      });
-  }
-    // Hàm upload ảnh và ảnh
+    };
+    newData.category_id = req.body.category; // lấy id danh mục có sẵn
+    newData.supplier_id = req.body.supplier;
+    addNewBook(newData)
+
     function uploadFiles(Book_id) {
-      // Upload file
-      if (req.fileValidationError) {
-        return res.status(400).send(req.fileValidationError);
-      } else if (!req.files || !req.files['fileElem'] || !req.files['myImage']) {
-        return res.status(400).send('Please select both files to upload');
-      }
-  
-      const fileBook = req.files['fileElem'][0].filename;
-      const fileIMG = req.files['myImage'][0].filename;
-  
-      const bookFilePath = `/public/upload/${fileBook}`;
-      const imageFilePath = `/public/upload/${fileIMG}`;
-      Book.upload([Book_id, fileBook, fileIMG], (err) => {
-        if (err) {
-          res.status(401).json(err);
-        } else {
-          res.json({ data: [Book_id, bookFilePath, imageFilePath] });
+        // Upload file
+        if (req.fileValidationError) {
+            return res.status(400).send(req.fileValidationError);
+        } else if (!req.files || !req.files['fileElem'] || !req.files['myImage']) {
+            return res.status(400).send('Please select both files to upload');
         }
-      });
-    }
-  };
-  
+
+        const file_path = req.files['fileElem'][0].filename;
+        const image_path = req.files['myImage'][0].filename;
+
+        newUpload = {
+            Book_id, file_path, image_path
+        }
+        Book.upload(newUpload, (err) => {
+            if (err) {
+                res.status(401).json(err);
+            }
+        })
+    };
+    //hàm thêm sách
+
+    function addNewBook(data) {
+        Book.addBook(data, (err, bookData) => {
+            if (err) {
+                res.status(401).json(err);
+            } else {
+                var book_id = bookData.id;
+                uploadFiles(book_id);
+                Book.get_image_fileDB(book_id, (dataUpload) => {
+
+                    const bookFilePath = `/public/upload/${dataUpload.map(item => item.file_path)}`;
+                    const imageFilePath = `/public/upload/${dataUpload.map(item => item.image_path)}`;
+
+                    res.json({ 'new booK': book_id, data, bookFilePath, imageFilePath })
+                })
+            }
+        })
+    };
+
+    // function addNewCateg(data) {
+    //     Book.addCategory(data, (err, category) => {
+    //         if (err) {
+    //             res.status(401).json(err);
+    //         } else {
+    //             newData.category_id = category.id; //thêm category_id  mới vào newData
+    //         }
+    //     })
+    // };
+
+    // function addNewSupplier(data, callback) {
+    //     Book.addSupplier(data, (err, supplier) => {
+    //         newData.supplier_id = supplier.id; //thêm category_id  mới vào newData
+    //     });
+    // }
+};
 
 //xóa sách 
 exports.removeBook = (req, res) => {
