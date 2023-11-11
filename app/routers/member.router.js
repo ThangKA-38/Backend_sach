@@ -7,5 +7,6 @@ module.exports = app => {
 
     router.get('/member/detail', middleware.authMember, controller.detailUser)
         .post('/member/add_infomation', middleware.authMember, upload.single('avatar'), controller.addNewInfor)
+      .get('/member/delete', middleware.authMember, controller.delete_infor_User)
     app.use(router)
 }
