@@ -18,12 +18,11 @@ Member.addInfor = (newData, result) => {
     });
 }
 Member.getUserById = (id, callback) => {
-    const db = 
-    `SELECT U.user_id, U.fullName, U.address, U.phone_number, U.birth_date, U.gender, U.avatar, U.created_at
+    const db =
+        `SELECT U.user_id, U.fullName, U.address, U.phone_number, U.birth_date, U.gender, U.avatar, U.created_at
     FROM user_info U 
     LEFT JOIN account A ON U.account_id = A.account_id
-    WHERE U.account_id = ${id}`
-    ;
+    WHERE U.account_id = ${id}`;
 
     sql.query(db, (err, user) => {
         if (err) {
@@ -35,4 +34,15 @@ Member.getUserById = (id, callback) => {
     });
 }
 
+Member.deleteUser = (id, result) => {
+    const db = `DELETE FROM user_info WHERE account_id=${id}`;
+    sql.query(db, (err, member) => {
+        if (err) {
+            console.log(err);
+            result(err, null);
+        } else {
+
+        }
+    });
+}
 module.exports = Member;

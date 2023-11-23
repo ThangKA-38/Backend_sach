@@ -1,36 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vintage</title>
 </head>
+
 <body>
     <h1>VINTAGE BOOK</h1>
-  
-    <div class="container">
-        <div class="jumbotron">
-            <h1 class="text-primary  text-center"><span class="fa fa-user"></span> Profile Information</h1>
-            <div class="row">
-                <div class="col-sm-6">
-                    <div class="well">
-                        <% for(let i = 0 ; i < dataUser.length; i++ ) {%>
-                            <p>
 
-                                <strong>Name</strong>:
-                                <%= dataUser[i].username %><br>
-                                    <strong>Email</strong>:
-                                    <%= dataUser[i].email %><br>
-                                    <strong>Role</strong>:
-                                    <%= dataUser[i].role_name %><br>
-                            </p>
 
-                            <%}%>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </body>
+
 </html>

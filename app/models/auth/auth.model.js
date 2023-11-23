@@ -38,8 +38,8 @@ User.createUser = (newUser, result) => {
 
 
 
-User.findByEmail = (email,result)=>{
-    sql.query('SELECT * FROM account WHERE email = ?', [email,result], (err, res) => {
+User.findByEmail = (email, result) => {
+    sql.query('SELECT * FROM account WHERE email = ?', [email, result], (err, res) => {
         if (err) {
             result(err, null);
             return;

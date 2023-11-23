@@ -5,5 +5,7 @@ module.exports = app => {
 
     require('./member.router')(app);
 
-    require('./vnpay.router')(app)
+    require('./admin.router')(app);
+
+    require('./vnpay.router')(app);
 }

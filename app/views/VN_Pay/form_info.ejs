@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Thanh Toán VNPAY</title>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="header clearfix">
+            <h3 class="text-muted">VNPAY DEMO</h3>
+        </div>
+        <h3>Tạo mới đơn hàng</h3>
+        <div class="table-responsive">
+            <form action="/create_payment_url" method="post">
+
+
+                <button type="button" class="btn btn-primary" id="btnPopup" onclick="submitForm('post')">Thanh toán Post</button>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function submitForm(formType) {
+            var form = document.querySelector('form');
+            form.setAttribute('action', formType === 'post' ? '/create_payment_url' : '/redirect_payment_url');
+            form.submit();
+        }
+    </script>
+</body>
+
+</html>

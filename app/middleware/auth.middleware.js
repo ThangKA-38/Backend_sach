@@ -4,7 +4,7 @@ require('dotenv/config');
 
 exports.authAdmin = (req, res, next) => {
 
-    const token = (req.get("Authorization")).split(" ")[1].trim();
+        const token = (req.get("Authorization")).split(" ")[1].trim();
 
         if (token === undefined) {
             return res.json({
@@ -12,7 +12,6 @@ exports.authAdmin = (req, res, next) => {
             });
         } else {
             jwt.verify(token, process.env.JWT_SECRET_KEY, (err, authData) => {
-                
                 if (err) {
                     res.json({
                         message: "Invalid Token..." + err.message
@@ -34,7 +33,7 @@ exports.authAdmin = (req, res, next) => {
     // xác thực người dùng
 exports.authMember = (req, res, next) => {
 
-//    const token = req.headers['authorization'];
+    //    const token = req.headers['authorization'];
     const token = (req.get("Authorization")).split(" ")[1].trim();
     console.log(token);
 
@@ -42,18 +41,16 @@ exports.authMember = (req, res, next) => {
         return res.json({
             message: "Access Denied! Unauthorized User"
         });
-    } 
-    else {
+    } else {
         jwt.verify(token, process.env.JWT_SECRET_KEY, (err, authData) => {
-            console.log(err==null)
-            console.log(authData)
-            if (err!=null) {
+            console.log(err == null)
+            if (err != null) {
                 console.error('Token Verification Error:', err);
                 console.log(token);
                 res.json({
                     message: "Invalid Token..." + err.message
                 });
-            }else {
+            } else {
                 const role_id = authData.role_id;
                 if (role_id === 2 || role_id === 1) {
                     next();
