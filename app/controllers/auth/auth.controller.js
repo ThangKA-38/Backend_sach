@@ -31,12 +31,12 @@ exports.login = (req, res) => {
                                 email: user.email,
                                 role_id: user.role_id
                             },
-                            process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+                            process.env.JWT_SECRET_KEY, { expiresIn: '1s' });
                         res.cookie('token', jsontoken, {
                             httpOnly: true,
                             secure: true,
                             SameSite: 'strict',
-                            expires: new Date(Number(new Date()) + 30 * 60 * 1000)
+                            expires: new Date(Number(new Date()))
                         })
                         res.json({
                             success: true,

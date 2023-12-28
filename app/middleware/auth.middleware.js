@@ -67,3 +67,30 @@ exports.authMember = (req, res, next) => {
         }
     });
 };
+
+// Function to create middleware for login authentication
+const authenticateLogin = (account_id) => {
+    return (req, res, next) => {
+        const { username, password } = req.body; // Assuming you have username and password in the request body
+
+        // Add your logic to authenticate the user (e.g., check credentials against a database)
+        // For demonstration purposes, let's assume a simple check here
+        if (account_id === 1) {
+            req.role_id = 1; // Set role_id for the token
+            next();
+        } else if (account_id === 2) {
+            req.role_id = 2; // Set role_id for the token
+            next();
+        } else {
+            res.status(401).json({
+                message: "Invalid credentials or account type"
+            });
+        }
+    };
+};
+
+// Usage example for admin login
+exports.adminLogin = authenticateLogin(1);
+
+// Usage example for member login
+exports.memberLogin = authenticateLogin(2);

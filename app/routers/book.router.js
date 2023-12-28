@@ -4,14 +4,6 @@ module.exports = app => {
     const middleware = require('../middleware/auth.middleware');
     const commentController = require('../controllers/comment.controller')
 
-    router.get('/', (req, res) => {
-        res.render('introduction.ejs')
-    })
-
-    router.get('/home', (req, res) => {
-        res.render('home.ejs')
-    })
-
     router.get('/book', controller.ShowBook_full)
         .get('/book/detail/:id', controller.detailBooK)
         .get('/category/:id', controller.categoryBookByID)
@@ -20,14 +12,11 @@ module.exports = app => {
 
     router.post('/comments/:id', commentController.addComment)
         .get('/comments/book/:id', commentController.getCommentsByBookId)
-        // Update a comment
         .put('/comments/:id', commentController.updateComment)
-        // Delete a comment
         .delete('/comments/:id', commentController.deleteComment)
 
-    router.get('/cut_pdf-file/:book_id', controller.Cut_File_PDF)
-        .get('/book_5page/:book_id', controller.ShowBook_5page_byID)
-        .get('/all-book-5page', controller.ShowALLBook_5page)
-        .get('/pdf/full/:book_id', controller.ShowBook_full)
+    router.get('/cut_pdf-file/:book_id', controller.check_payment_pdf)
+    //.get('/pdf/full/:book_id', controller.check_payment_pdf)
+    //.get('/pdf/full/:book_id', controller.ShowBook_full)
     app.use(router);
 }

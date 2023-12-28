@@ -1,7 +1,7 @@
 const Book = require('../models/Book_model')
 const pdftk = require('node-pdftk')
 const jwtDecode = require("jwt-decode");
-
+const mysql = require('../models/db')
 
 // hiển thị sách ra web
 exports.ShowBook_full = (req, res) => {
@@ -10,10 +10,9 @@ exports.ShowBook_full = (req, res) => {
         const bookFilePath = `/public/upload/${data.map(item => item.file_path)}`;
         const imageFilePath = `/public/upload/${data.map(item => item.image_path)}`;
 
-        res.json({ data, bookFilePath, imageFilePath })
+        res.json({ data, bookFilePath })
     })
 }
-
 // show sách theo id
 exports.detailBooK = (req, res, err) => {
     var id = req.params.id;
@@ -27,7 +26,7 @@ exports.detailBooK = (req, res, err) => {
 }
 
 exports.showDataNewBook = (req, res) => {
-    Book.getAllBook((data) => {
+    Book.getBook_fullPage((data) => {
         res.json({ book: data })
     })
 }
@@ -206,11 +205,104 @@ exports.searchProduct = (req, res) => {
 
 
 // hàm cắt file pdf
+// exports.Cut_File_PDF = (req, res) => {
+//     const token = (req.get("Authorization")).split(" ")[1].trim();
+//     const account_id = jwtDecode.jwtDecode(token, { header: false }).account_id;
+//     var book_id = req.params.book_id
+
+
+//     Book.get_image_fileDB(book_id, (data) => {
+//         try {
+//             // Construct the absolute paths for the input and output PDF files
+//             const inputPath = `/public/upload/${data.map(item => item.file_path)}`
+//             // tạo file output.pdf
+//             const outputPath = `public/upload/output_${data.map(item => item.file_path)}`;
+//             // Use node-pdftk to process the PDF
+//             pdftk.input(inputPath)
+//                 .cat('1-5') // Keep only page 1
+//                 .output(outputPath);
+//             const newFile = {
+//                 book_id,
+//                 file_path_5page: `output_${data.map(item => item.file_path)}`,
+//                 image_path: `${data.map(item => item.image_path)}`
+//             }
+//             Book.upload_5page(newFile, () => { })
+
+//             Book.checkPayment(account_id, book_id, (err, data) => {
+//                 if (data[0].vnp_TransactionStatus == '00') {
+//                     res.json({
+//                         book_id,
+//                         "File original:": inputPath
+//                     });
+//                 } else {
+//                     res.json({
+//                         book_id,
+//                         "File only 5 page:": outputPath
+//                     })
+//                 }
+//             })
+
+//         } catch (error) {
+//             // If an error occurs, send an error response to the client
+//             res.status(500).json({ error: "PDF cutting failed", details: error.message });
+//             console.error("Error:", error);
+//         }
+//     })
+
+// }
+
+// hàm cắt file pdf
+// exports.Cut_File_PDF = (req, res) => {
+//     const token = (req.get("Authorization")).split(" ")[1].trim();
+//     const account_id = jwtDecode.jwtDecode(token, { header: false }).account_id;
+//     var book_id = req.params.book_id
+
+
+//     Book.get_image_fileDB(book_id, (data) => {
+//         try {
+//             // Construct the absolute paths for the input and output PDF files
+//             const inputPath = `/public/upload/${data.map(item => item.file_path)}`
+//             // tạo file output.pdf
+//             const outputPath = `public/upload/output_${data.map(item => item.file_path)}`;
+//             // Use node-pdftk to process the PDF
+//             pdftk.input(inputPath)
+//                 .cat('1-5') // Keep only page 1
+//                 .output(outputPath);
+//             const newFile = {
+//                 book_id,
+//                 file_path_5page: `output_${data.map(item => item.file_path)}`,
+//                 image_path: `${data.map(item => item.image_path)}`
+//             }
+//             Book.upload_5page(newFile, () => { })
+
+//             Book.checkPayment(account_id, book_id, (err, data) => {
+//                 if (data[0].vnp_TransactionStatus == '00') {
+//                     res.json({
+//                         book_id,
+//                         "File original:": inputPath
+//                     });
+//                 } else {
+//                     res.json({
+//                         book_id,
+//                         "File only 5 page:": outputPath
+//                     })
+//                 }
+//             })
+
+//         } catch (error) {
+//             // If an error occurs, send an error response to the client
+//             res.status(500).json({ error: "PDF cutting failed", details: error.message });
+//             console.error("Error:", error);
+//         }
+//     })
+
+// }
+
 exports.Cut_File_PDF = (req, res) => {
-    // Book.getBook_fullPage((data) => {})
     var book_id = req.params.book_id
-    Book.get_image_fileDB(book_id, (data) => {
+    Book.get_image_fileDB(book_id, (err, data) => {
         try {
+            console.log(data);
             // Construct the absolute paths for the input and output PDF files
             const inputPath = `/public/upload/${data.map(item => item.file_path)}`
             // tạo file output.pdf
@@ -224,7 +316,6 @@ exports.Cut_File_PDF = (req, res) => {
                 file_path_5page: `output_${data.map(item => item.file_path)}`,
                 image_path: `${data.map(item => item.image_path)}`
             }
-            Book.upload_5page(newFile, () => { })
             res.json({
                 book_id,
                 "File only 5 page:": outputPath,
@@ -237,32 +328,59 @@ exports.Cut_File_PDF = (req, res) => {
             console.error("Error:", error);
         }
     })
-
 }
 
-exports.ShowBook_5page_byID = (req, res) => {
+
+// hiển thị sách ra web
+exports.check_payment_pdf = (req, res) => {
+    const token = (req.get("Authorization")).split(" ")[1].trim();
+    const account_id = jwtDecode.jwtDecode(token, { header: false }).account_id;
     var book_id = req.params.book_id
-    Book.getBook_5Page(book_id, (data) => {
-        const bookFilePath_5page = `/public/upload/${data.map(item => item.file_path_5page)}`;
-        const imageFilePath = `/public/upload/${data.map(item => item.image_path)}`;
-        res.json({ data, bookFilePath_5page, imageFilePath })
-    })
-}
 
-exports.ShowALLBook_5page = (req, res) => {
-    Book.getAll_image_fileDB_5page((data) => {
-        let bookFilePath_5page
-        let imageFilePath
-        data.map((item => {
-            bookFilePath_5page = `/public/upload/${item => item.file_path_5page}`;
-            imageFilePath = `/public/upload/${item => item.image_path}`;
-        }))
-        res.json({ data, bookFilePath_5page, imageFilePath })
-    })
-}
+    Book.get_image_fileDB(book_id, (err, data) => {
+        try {
+            const inputPath = `/public/upload/${data.map(item => item.file_path)}`
+            // tạo file output.pdf
+            const outputPath = `public/upload/output_${data.map(item => item.file_path)}`;
+            // Use node-pdftk to process the PDF
+            pdftk.input(inputPath)
+                .cat('1-5') // Keep only page 1
+                .output(outputPath)
+                .then(() => {
+                    //kiểm tra id có trong dc chưa
+                    Book.check_bookID_in_Receipt(book_id, (err, data_status) => {
+                        if (data[0].StatusPayment == 0) {
+                            return res.json({
+                                book_id,
+                                "File only 5 page:": outputPath,
+                                message: "Sách này chưa thanh toán"
+                            })
+                        } else {
+                            // kiểm tra id đó đã thanh toán chưa
+                            Book.checkPayment(account_id, book_id, (err, data) => {
 
-exports.get_full_pdf = (req, res) => {
-    Book.findByID((data) => {
+                                if (data[0].vnp_TransactionStatus == '00') {
+                                    return res.json({
+                                        book_id,
+                                        "File original:": inputPath,
+                                        message: "Thanh toán thành công"
+                                    });
+                                } else {
+                                    res.json({
+                                        book_id,
+                                        "File only 5 page:": outputPath,
+                                        message: "Sách này chưa thanh toán"
+                                    })
+                                }
+                            })
+                        }
+                    })
+                })
 
+        } catch (error) {
+            // If an error occurs, send an error response to the client
+            res.status(500).json({ error: "PDF cutting failed", details: error.message });
+            console.error("Error:", error);
+        }
     })
 }

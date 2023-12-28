@@ -112,40 +112,16 @@ Book.addBook = (newData, result) => {
 
 //xóa sách 
 Book.Remove = (id, result) => {
-    const deleteImgQuery = `DELETE FROM book_img_file WHERE book_id = ${id}`;
-    const deleteBookQuery_5page = `DELETE FROM book_img_file_5page WHERE book_id = ${id}`;
-    const deleteBookQuery = `DELETE FROM book WHERE book_id = ${id}`;
-    const deleteBooK_cart = `DELETE FROM cart WHERE book_id = ${id}`
-    sql.query(deleteBooK_cart, (err) => {
+    const db_delete = `DELETE FROM book WHERE book_id =${id}`;
+
+    sql.query(db_delete, (err) => {
         if (err) {
             result(err, null);
             return;
-
         }
 
-        sql.query(deleteImgQuery, (err) => {
-            if (err) {
-                result(err, null);
-                return;
-            }
-
-            sql.query(deleteBookQuery_5page, (err) => {
-                if (err) {
-                    result(err, null);
-                    return;
-                }
-
-                sql.query(deleteBookQuery, (err) => {
-                    if (err) {
-                        result(err, null);
-                        return;
-                    }
-
-                    result(null, "xóa dữ liệu sách có id: " + id + " Thành công!");
-                });
-            });
-        });
-    })
+        result(null, "xóa dữ liệu sách có id: " + id + " Thành công!");
+    });
 };
 
 // //Sửa thông tin sách 
@@ -175,16 +151,7 @@ Book.upload = (newData, result) => {
     })
 }
 //==================================================================================
-Book.upload_5page = (newData, callback) => {
-    const db = 'INSERT INTO booK_img_file_5page SET ?';
-    sql.query(db, newData, (err, book) => {
-        if (err) {
-            console.error("Error inserting data:", err);
-            callback(err, null);
-        }
-        callback(null, book);
-    });
-};
+
 
 Book.get_image_fileDB = (id, callback) => {
     const db = `SELECT * FROM book_img_file WHERE book_id=${id}`
@@ -192,49 +159,11 @@ Book.get_image_fileDB = (id, callback) => {
         if (err) {
             callback(err, null)
         } else {
-            callback(data)
+            callback(null, data)
         }
     })
 }
 
-Book.get_image_fileDB_5page = (id, callback) => {
-    const db = `SELECT * FROM book_img_file_5page WHERE book_id=${id}`
-    sql.query(db, (err, data) => {
-        if (err) {
-            callback(err, null)
-        } else {
-            callback(data)
-        }
-    })
-}
-Book.getAll_image_fileDB_5page = (callback) => {
-    const db = `SELECT * FROM book_img_file_5page`
-    sql.query(db, (err, data) => {
-        if (err) {
-            callback(err, null)
-        } else {
-            callback(data)
-        }
-    })
-}
-Book.getBook_5Page = (id, result) => {
-    const db = `
-        SELECT  book.book_id,book.book_title,book.price, i.file_path_5page,i.image_path
-        from book 
-        LEFT JOIN book_img_file_5page i 
-        ON book.book_id = i.book_id
-        WHERE i.book_id = ${id}
-        GROUP BY book.book_id,book.book_title,book.price, i.file_path_5page,i.image_path
-    `
-    sql.query(db, (err, book) => {
-        if (err) {
-            result(err, null)
-        } else {
-            result(book)
-        }
-    })
-
-}
 //================================================================================S
 Book.getCategory = (result) => {
     const db = `
@@ -339,7 +268,39 @@ Book.searchByName = (searchTerm, result) => {
     });
 };
 
+Book.checkPayment = (account_id, book_id, callback) => {
+    const db = `
+    SELECT vnp_TransactionStatus
+    FROM receipt
+    WHERE account_id = ${account_id}
+        AND book_id = ${book_id}
+    `
+    sql.query(db, (err, data) => {
+        if (err) {
+            callback(err, null)
+        } else {
+            callback(null, data)
+            console.log(data);
+        }
+    })
+}
 
+
+Book.check_bookID_in_Receipt = (account_id, book_id, callback) => {
+    const db = `
+    SELECT count(*) AS StatusPayment 
+    FROM receipt  
+    WHERE 
+    book_id = ${book_id} AND account_id=${account_id}
+    `
+    sql.query(db, (err, data) => {
+        if (err) {
+            callback(err, null)
+        } else {
+            callback(null, data)
+        }
+    })
+}
 
 // comment 
 const Comment = function (comment) {
